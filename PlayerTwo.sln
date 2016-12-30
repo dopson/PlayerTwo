@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerTwo", "PlayerTwo\PlayerTwo.csproj", "{C6792E2A-A243-4C19-B9CC-A1667CFC7634}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{F9D3362C-0921-4E31-9223-7C089879FD11}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{406B7A12-072F-4334-ABA8-E360591176F2}"
+	ProjectSection(SolutionItems) = preProject
+		LICENCE.txt = LICENCE.txt
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C6792E2A-A243-4C19-B9CC-A1667CFC7634}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6792E2A-A243-4C19-B9CC-A1667CFC7634}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6792E2A-A243-4C19-B9CC-A1667CFC7634}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6792E2A-A243-4C19-B9CC-A1667CFC7634}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9D3362C-0921-4E31-9223-7C089879FD11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9D3362C-0921-4E31-9223-7C089879FD11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9D3362C-0921-4E31-9223-7C089879FD11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9D3362C-0921-4E31-9223-7C089879FD11}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -19,13 +19,9 @@ namespace PlayerTwo
         {
             Initialize();
 
-            while(Run() != 0)
-            {
-                Thread.Sleep(1000);
-            }
+            _gameStateService.OnEvent += new EventHandler<EventArgs>(Run);
 
-            Console.WriteLine("Press any key to quit");
-            Console.ReadLine();
+            new AutoResetEvent(false).WaitOne();
         }
 
         private static void Initialize()
@@ -37,7 +33,7 @@ namespace PlayerTwo
             );
         }
 
-        private static int Run()
+        private static void Run(object sender, EventArgs e)
         {
             try
             {
@@ -91,13 +87,11 @@ namespace PlayerTwo
                     Console.WriteLine("Opponent's board: " + opponentBoardString);
                 }
             }
-            catch (Exception e)
+            catch (Exception error)
             {
-                Console.WriteLine(e);
-                return 0;
+                Console.WriteLine(error.Message.ToString());
+                throw error;
             }
-
-            return 1;
         }
     }
 }

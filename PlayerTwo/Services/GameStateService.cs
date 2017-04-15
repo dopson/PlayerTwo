@@ -2,7 +2,6 @@
 using PlayerTwo.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace PlayerTwo.Services
 {
@@ -16,6 +15,8 @@ namespace PlayerTwo.Services
         private List<Card> _board;
         private List<Card> _opponentBoard;
         private List<Card> _opponentHand;
+
+        public event EventHandler<EventArgs> OnEvent;
 
         public GameStateService(ILogFileMonitor logFileMonitor, ICardService cardService, IGameLogParserService gameLogParserService)
         {
@@ -173,6 +174,11 @@ namespace PlayerTwo.Services
         private void NewLineAdded(object sender, LogFileMonitorLineEventArgs e)
         {
             UpdateGameLog(e.Line);
+            
+            if (OnEvent != null)
+            {
+                OnEvent(this, EventArgs.Empty);
+            }
         }
     }
 }

@@ -38,14 +38,14 @@ namespace PlayerTwo.Models
             // 8 = opposing or friendly event
             // 9 = to zone
 
-            GlobalEventId = eventParts[2];
-            Id = eventParts[3];
-            CardId = eventParts[4];
-            PlayerId = TeamParser.GetPlayerIdById(eventParts[5]);
-            FromPlayer = TeamParser.GetPlayerId(eventParts[6]);
-            FromZone = ZoneParser.GetZone(eventParts[7]);
-            ToPlayer = TeamParser.GetPlayerId(eventParts[8]);
-            ToZone = ZoneParser.GetZone(eventParts[9]);
+            //GlobalEventId = eventParts[2];
+            Id = eventParts[2];
+            CardId = eventParts[3];
+            PlayerId = TeamParser.GetPlayerIdById(eventParts[4]);
+            FromPlayer = TeamParser.GetPlayerId(eventParts[5]);
+            FromZone = ZoneParser.GetZone(eventParts[6]);
+            ToPlayer = TeamParser.GetPlayerId(eventParts[7]);
+            ToZone = ZoneParser.GetZone(eventParts[8]);
         }
     }
 }

@@ -122,7 +122,9 @@ namespace PlayerTwo.Utils
                         foreach (var line in lines)
                         {
                             if (OnLine != null)
+                            {
                                 OnLine(this, new LogFileMonitorLineEventArgs { Line = line });
+                            }
                         }
                     }
 

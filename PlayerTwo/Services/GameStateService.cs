@@ -8,20 +8,22 @@ namespace PlayerTwo.Services
 {
     public class GameStateService : IGameStateService
     {
-        private IGameLogReaderService _gameLogReaderService;
         private ICardService _cardService;
         private IGameLogParserService _gameLogParserService;
+        private ILogFileMonitor _logFileMonitor;
 
         private List<Card> _hand;
         private List<Card> _board;
         private List<Card> _opponentBoard;
         private List<Card> _opponentHand;
 
-        public GameStateService(IGameLogReaderService gameLogReaderService, ICardService cardService, IGameLogParserService gameLogParserService)
+        public GameStateService(ILogFileMonitor logFileMonitor, ICardService cardService, IGameLogParserService gameLogParserService)
         {
-            _gameLogReaderService = gameLogReaderService;
             _cardService = cardService;
             _gameLogParserService = gameLogParserService;
+            _logFileMonitor = logFileMonitor;
+            _logFileMonitor.OnLine += new EventHandler<LogFileMonitorLineEventArgs>(NewLineAdded);
+            _logFileMonitor.Start();
 
             _hand = new List<Card>();
             _board = new List<Card>();
@@ -31,56 +33,47 @@ namespace PlayerTwo.Services
 
         public IEnumerable<Card> GetHand()
         {
-            UpdateGameLog();
             return _hand;
         }
 
         public IEnumerable<Card> GetOpponentHand()
         {
-            UpdateGameLog();
             return _opponentHand;
         }
 
         public IEnumerable<Card> GetBoard()
         {
-            UpdateGameLog();
             return _board;
         }
 
         public IEnumerable<Card> GetOpponentBoard()
         {
-            UpdateGameLog();
             return _opponentBoard;
         }
 
-        private void UpdateGameLog()
+        private void UpdateGameLog(string action)
         {
-            var newActions = _gameLogReaderService.GetNewActions();
-
-            if (newActions != null && newActions.Any())
+            if (!string.IsNullOrEmpty(action))
             {
-                foreach (var action in newActions)
+                var gameEvent = _gameLogParserService.GetGameEvent(action);
+
+                if (gameEvent.Type == GameEventType.Card)
                 {
-                    var gameEvent = _gameLogParserService.GetGameEvent(action);
+                    Console.WriteLine("Found game event: " + gameEvent.Id);
+                    var card = _cardService.GetCard(gameEvent.CardId);
 
-                    if (gameEvent.Type == GameEventType.Card)
+                    if (card != null)
                     {
-                        Console.WriteLine("Found game event: " + gameEvent.Id);
-                        var card = _cardService.GetCard(gameEvent.CardId);
+                        Console.WriteLine("Found game card: " + card.Name);
 
-                        if (card != null)
-                        {
-                            Console.WriteLine("Found game card: " + card.Name);
+                        card.GameEventId = gameEvent.Id;
 
-                            card.GameEventId = gameEvent.Id;
-
-                            HandleOwnDraws(gameEvent, card);
-                            HandleOwnBoard(gameEvent, card);
-                            HandleOpponentBoard(gameEvent, card);
-                        }
-
-                        HandleOpponentDraws(gameEvent);
+                        HandleOwnDraws(gameEvent, card);
+                        HandleOwnBoard(gameEvent, card);
+                        HandleOpponentBoard(gameEvent, card);
                     }
+
+                    HandleOpponentDraws(gameEvent);
                 }
             }
         }
@@ -175,6 +168,11 @@ namespace PlayerTwo.Services
                 }
 
             }
+        }
+
+        private void NewLineAdded(object sender, LogFileMonitorLineEventArgs e)
+        {
+            UpdateGameLog(e.Line);
         }
     }
 }

@@ -68,7 +68,6 @@
   <ItemGroup>
     <Compile Include="CardServiceTests.cs" />
     <Compile Include="GameLogParserServiceTests.cs" />
-    <Compile Include="GameLogReaderServiceTests.cs" />
     <Compile Include="GameStateServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

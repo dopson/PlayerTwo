@@ -7,6 +7,8 @@ namespace PlayerTwo.Models
 {
     public class GameEvent
     {
+        public string GlobalEventId { get; set; }
+
         public string Id { get; set; }
 
         public string CardId { get; set; }
@@ -27,31 +29,23 @@ namespace PlayerTwo.Models
         {
             // 0 = something
             // 1 = card name
-            // 2 = event id
-            // 3 = card id
-            // 4 = player id
-            // 5 = opposing or friendly event
-            // 6 = from zone
-            // 7 = opposing or friendly event
-            // 8 = to zone
-           /* 0 = kaikki ?
-1 = name
-2 = eventId
-2 = cardId
-3 = player
-4 = fromPlayer
-5 = fromZone
-6 = toPlayer
-7 = toZone
-*/
+            // 2 = global event id
+            // 3 = event id
+            // 4 = card id
+            // 5 = player id
+            // 6 = opposing or friendly event
+            // 7 = from zone
+            // 8 = opposing or friendly event
+            // 9 = to zone
 
-            Id = eventParts[2];
-            CardId = eventParts[3];
-            PlayerId = TeamParser.GetPlayerIdById(eventParts[4]);
-            FromPlayer = TeamParser.GetPlayerId(eventParts[5]);
-            FromZone = ZoneParser.GetZone(eventParts[6]);
-            ToPlayer = TeamParser.GetPlayerId(eventParts[7]);
-            ToZone = ZoneParser.GetZone(eventParts[8]);
+            GlobalEventId = eventParts[2];
+            Id = eventParts[3];
+            CardId = eventParts[4];
+            PlayerId = TeamParser.GetPlayerIdById(eventParts[5]);
+            FromPlayer = TeamParser.GetPlayerId(eventParts[6]);
+            FromZone = ZoneParser.GetZone(eventParts[7]);
+            ToPlayer = TeamParser.GetPlayerId(eventParts[8]);
+            ToZone = ZoneParser.GetZone(eventParts[9]);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace PlayerTwo
         private static IGameStateService _gameStateService;
         private static string _logFilePath = "C:\\Program Files (x86)\\Hearthstone\\Logs\\";
         private static string _logFileName = "Zone.log";
-        private static string _cardFilePath = "\\Assets\\cards.json";
+        private static string _cardFilePath = "C:\\sites\\playertwo\\PlayerTwo\\Assets\\cards.json";
         private static string _delimiter = "\r\n";
 
         static void Main(string[] args)
@@ -31,9 +31,7 @@ namespace PlayerTwo
         private static void Initialize()
         {
             _gameStateService = new GameStateService(
-                new GameLogReaderService(
-                        new LogFileMonitor(_logFilePath + _logFileName, _delimiter)
-                    ),
+                new LogFileMonitor(_logFilePath + _logFileName, _delimiter),
                 new CardService(_cardFilePath),
                 new GameLogParserService()
             );

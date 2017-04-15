@@ -16,9 +16,9 @@ namespace UnitTests
     public class GameStateServiceTests
     {
         public GameStateService Service;
-        private static Mock<IGameLogReaderService> _gameLogReaderService;
         private static Mock<IGameLogParserService> _gameLogParserService;
         private static Mock<ICardService> _cardService;
+        private static Mock<ILogFileMonitor> _logFileMonitor;
 
         public GameStateServiceTests()
         {
@@ -27,23 +27,16 @@ namespace UnitTests
         [SetUp]
         public void Setup()
         {
-            _gameLogReaderService = new Mock<IGameLogReaderService>();
+            _logFileMonitor = new Mock<ILogFileMonitor>();
             _cardService = new Mock<ICardService>();
             _gameLogParserService = new Mock<IGameLogParserService>();
 
-            Service = new GameStateService(_gameLogReaderService.Object, _cardService.Object, _gameLogParserService.Object);
+            Service = new GameStateService(_logFileMonitor.Object, _cardService.Object, _gameLogParserService.Object);
         }
 
         [Test]
         public void TestGetHandGetsAppended()
         {
-            var newStates = new List<string>
-            {
-                "1",
-                "2",
-                "3"
-            };
-
             var newEvent = new GameEvent
             {
                 Id = "dsafa",
@@ -62,28 +55,27 @@ namespace UnitTests
             var gameLog = Service.GetHand();
 
             Assert.IsEmpty(gameLog);
-
-            _gameLogReaderService.Setup(m => m.GetNewActions()).Returns(newStates);
+            
             _gameLogParserService.Setup(m => m.GetGameEvent(It.IsAny<string>())).Returns(newEvent);
             _cardService.Setup(m => m.GetCard(It.IsAny<string>())).Returns(newCard);
 
-            gameLog = Service.GetHand();
-
-            Assert.AreEqual(newStates.Count(), gameLog.Count());
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
 
             gameLog = Service.GetHand();
 
-            Assert.AreEqual(newStates.Count() * 2, gameLog.Count());
+            Assert.AreEqual(1, gameLog.Count());
+
+
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
+
+            gameLog = Service.GetHand();
+
+            Assert.AreEqual(2, gameLog.Count());
         }
 
         [Test]
         public void TestHandGetsReduced()
         {
-            var newStates = new List<string>
-            {
-                "1"
-            };
-
             var newEvent = new GameEvent
             {
                 Id = "dsafa",
@@ -99,16 +91,19 @@ namespace UnitTests
                 GameEventId = newEvent.Id,
             };
 
-            _gameLogReaderService.Setup(m => m.GetNewActions()).Returns(newStates);
             _gameLogParserService.Setup(m => m.GetGameEvent(It.IsAny<string>())).Returns(newEvent);
             _cardService.Setup(m => m.GetCard(It.IsAny<string>())).Returns(newCard);
 
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
+
             var gameLog = Service.GetHand();
 
-            Assert.AreEqual(newStates.Count(), gameLog.Count());
+            Assert.AreEqual(1, gameLog.Count());
 
             newEvent.ToZone = Zone.INVALID;
             newEvent.FromZone = Zone.HAND;
+
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
 
             gameLog = Service.GetHand();
 
@@ -118,13 +113,6 @@ namespace UnitTests
         [Test]
         public void TestOpponentHandGetsAppended()
         {
-            var newStates = new List<string>
-            {
-                "1",
-                "2",
-                "3"
-            };
-
             var newEvent = new GameEvent
             {
                 Id = "dsafa",
@@ -137,27 +125,25 @@ namespace UnitTests
 
             Assert.IsEmpty(gameLog);
 
-            _gameLogReaderService.Setup(m => m.GetNewActions()).Returns(newStates);
             _gameLogParserService.Setup(m => m.GetGameEvent(It.IsAny<string>())).Returns(newEvent);
             _cardService.Setup(m => m.GetCard(It.IsAny<string>())).Returns((Card)null);
 
-            gameLog = Service.GetOpponentHand();
-
-            Assert.AreEqual(newStates.Count(), gameLog.Count());
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
 
             gameLog = Service.GetOpponentHand();
 
-            Assert.AreEqual(newStates.Count() * 2, gameLog.Count());
+            Assert.AreEqual(1, gameLog.Count());
+
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
+
+            gameLog = Service.GetOpponentHand();
+
+            Assert.AreEqual(2, gameLog.Count());
         }
 
         [Test]
         public void TestOpponentHandGetsReduced()
         {
-            var newStates = new List<string>
-            {
-                "1",
-            };
-
             var newEvent = new GameEvent
             {
                 Id = "dsafa",
@@ -166,16 +152,19 @@ namespace UnitTests
                 ToZone = Zone.HAND,
             };
 
-            _gameLogReaderService.Setup(m => m.GetNewActions()).Returns(newStates);
             _gameLogParserService.Setup(m => m.GetGameEvent(It.IsAny<string>())).Returns(newEvent);
             _cardService.Setup(m => m.GetCard(It.IsAny<string>())).Returns((Card)null);
 
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
+
             var gameLog = Service.GetOpponentHand();
 
-            Assert.AreEqual(newStates.Count(), gameLog.Count());
+            Assert.AreEqual(1, gameLog.Count());
 
             newEvent.ToZone = Zone.INVALID;
             newEvent.FromZone = Zone.HAND;
+
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
 
             gameLog = Service.GetOpponentHand();
 
@@ -185,11 +174,6 @@ namespace UnitTests
         [Test]
         public void TestBoardGetsAppendedByOwnPlay()
         {
-            var newStates = new List<string>
-            {
-                "1"
-            };
-
             var newEvent = new GameEvent
             {
                 Id = "1",
@@ -209,27 +193,25 @@ namespace UnitTests
 
             Assert.IsEmpty(gameLog);
 
-            _gameLogReaderService.Setup(m => m.GetNewActions()).Returns(newStates);
             _gameLogParserService.Setup(m => m.GetGameEvent(It.IsAny<string>())).Returns(newEvent);
             _cardService.Setup(m => m.GetCard(It.IsAny<string>())).Returns(newCard);
 
-            gameLog = Service.GetBoard();
-
-            Assert.AreEqual(newStates.Count(), gameLog.Count());
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
 
             gameLog = Service.GetBoard();
 
-            Assert.AreEqual(newStates.Count()*2, gameLog.Count());
+            Assert.AreEqual(1, gameLog.Count());
+
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
+
+            gameLog = Service.GetBoard();
+
+            Assert.AreEqual(2, gameLog.Count());
         }
 
         [Test]
         public void TestBoardGetsAppendedByDeckPull()
         {
-            var newStates = new List<string>
-            {
-                "1"
-            };
-
             var newEvent = new GameEvent
             {
                 Id = "1",
@@ -249,27 +231,26 @@ namespace UnitTests
 
             Assert.IsEmpty(gameLog);
 
-            _gameLogReaderService.Setup(m => m.GetNewActions()).Returns(newStates);
             _gameLogParserService.Setup(m => m.GetGameEvent(It.IsAny<string>())).Returns(newEvent);
             _cardService.Setup(m => m.GetCard(It.IsAny<string>())).Returns(newCard);
 
+
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
+
             gameLog = Service.GetBoard();
 
-            Assert.AreEqual(newStates.Count(), gameLog.Count());
+            Assert.AreEqual(1, gameLog.Count());
+
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
 
             gameLog = Service.GetBoard();
 
-            Assert.AreEqual(newStates.Count() * 2, gameLog.Count());
+            Assert.AreEqual(2, gameLog.Count());
         }
 
         [Test]
         public void TestBoardGetsReduced()
         {
-            var newStates = new List<string>
-            {
-                "1"
-            };
-
             var newEvent = new GameEvent
             {
                 Id = "1",
@@ -285,16 +266,18 @@ namespace UnitTests
                 Id = newEvent.CardId
             };
 
-            _gameLogReaderService.Setup(m => m.GetNewActions()).Returns(newStates);
             _gameLogParserService.Setup(m => m.GetGameEvent(It.IsAny<string>())).Returns(newEvent);
             _cardService.Setup(m => m.GetCard(It.IsAny<string>())).Returns(newCard);
 
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
+
             var gameLog = Service.GetBoard();
 
-            Assert.AreEqual(newStates.Count(), gameLog.Count());
+            Assert.AreEqual(1, gameLog.Count());
 
             newEvent.FromZone = Zone.PLAY;
             newEvent.ToZone = Zone.GRAVEYARD;
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
             gameLog = Service.GetBoard();
 
             Assert.AreEqual(0, gameLog.Count());
@@ -303,11 +286,6 @@ namespace UnitTests
         [Test]
         public void TestOpponentBoardGetsAppendedByHisPlay()
         {
-            var newStates = new List<string>
-            {
-                "1"
-            };
-
             var newEvent = new GameEvent
             {
                 Id = "1",
@@ -326,28 +304,27 @@ namespace UnitTests
             var gameLog = Service.GetOpponentBoard();
 
             Assert.IsEmpty(gameLog);
-
-            _gameLogReaderService.Setup(m => m.GetNewActions()).Returns(newStates);
+            
+        
             _gameLogParserService.Setup(m => m.GetGameEvent(It.IsAny<string>())).Returns(newEvent);
             _cardService.Setup(m => m.GetCard(It.IsAny<string>())).Returns(newCard);
 
-            gameLog = Service.GetOpponentBoard();
-
-            Assert.AreEqual(newStates.Count(), gameLog.Count());
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
 
             gameLog = Service.GetOpponentBoard();
 
-            Assert.AreEqual(newStates.Count() * 2, gameLog.Count());
+            Assert.AreEqual(1, gameLog.Count());
+
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
+
+            gameLog = Service.GetOpponentBoard();
+
+            Assert.AreEqual(2, gameLog.Count());
         }
 
         [Test]
         public void TestOpponentBoardGetsAppendedByDeckPull()
         {
-            var newStates = new List<string>
-            {
-                "1"
-            };
-
             var newEvent = new GameEvent
             {
                 Id = "1",
@@ -367,17 +344,20 @@ namespace UnitTests
 
             Assert.IsEmpty(gameLog);
 
-            _gameLogReaderService.Setup(m => m.GetNewActions()).Returns(newStates);
             _gameLogParserService.Setup(m => m.GetGameEvent(It.IsAny<string>())).Returns(newEvent);
             _cardService.Setup(m => m.GetCard(It.IsAny<string>())).Returns(newCard);
 
-            gameLog = Service.GetOpponentBoard();
-
-            Assert.AreEqual(newStates.Count(), gameLog.Count());
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
 
             gameLog = Service.GetOpponentBoard();
 
-            Assert.AreEqual(newStates.Count() * 2, gameLog.Count());
+            Assert.AreEqual(1, gameLog.Count());
+
+            _logFileMonitor.Raise(m => m.OnLine += null, new LogFileMonitorLineEventArgs { Line = "something" });
+
+            gameLog = Service.GetOpponentBoard();
+
+            Assert.AreEqual(2, gameLog.Count());
         }
     }
 }
